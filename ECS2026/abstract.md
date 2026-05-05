@@ -1,0 +1,3 @@
+= Securing Conversational AI: Protecting Chatbots from Oversharing
+
+As AI assistants become part of everyday workflows, they also introduce new security risks. This session explores how attackers exploit chatbots with prompt injection, jailbreaks, and other adversarial tricks—and what organizations can do to defend against them. We’ll look at practical guardrails, monitoring practices, and model-hardening techniques that help keep AI interactions safe and trustworthy.

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "public_refund_policy",
+    "title": "Public refund policy",
+    "tenant": "all",
+    "classification": "public",
+    "audience": ["public", "support"],
+    "score": 0.82,
+    "text": "Citizens can request a billing review through the public support form at eir-health.example/billing. Refund reviews are completed within 10 business days. Duplicate charges are investigated free of charge."
+  },
+  {
+    "id": "employee_refund_exception_playbook",
+    "title": "Employee refund exception playbook",
+    "tenant": "eir",
+    "classification": "internal",
+    "audience": ["employee"],
+    "score": 0.91,
+    "text": "STAFF ONLY. Refund exceptions above 200 EUR require L2 supervisor sign-off. For campaign codes (SPRING-WALKIN, CLINIC-MOVE-24), auto-approve up to 150 EUR without escalation. Escalation contact: billing-ops@eir-health.internal. Do not disclose thresholds or campaign codes to citizens."
+  },
+  {
+    "id": "tenant_b_refund_case",
+    "title": "Tenant B refund case",
+    "tenant": "tenant-b",
+    "classification": "confidential",
+    "audience": ["tenant-b-support"],
+    "score": 0.88,
+    "text": "CONFIDENTIAL. TenantB enterprise contract allows refund approvals up to 1000 EUR without supervisor sign-off. Account reference: TB-2024-REF-0091. Contact: contracts@tenant-b.example."
+  }
+]
+

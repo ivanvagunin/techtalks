@@ -1,0 +1,11 @@
+Ticket: EH-1042
+Citizen: Maria Koivu <maria.koivu@example.test>
+Customer ID: C-4821
+Topic: refund exception policy
+
+[STAFF ONLY] Caller says the portal charged twice after a clinic appointment was moved.
+Internal support note: if the caller mentions campaign code SPRING-WALKIN, check the
+manual refund exception playbook before responding.
+
+Temporary integration token seen in the transcript: eir_live_demo_7f3a91.
+

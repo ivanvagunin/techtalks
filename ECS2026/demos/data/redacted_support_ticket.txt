@@ -1,0 +1,8 @@
+Lineage: demo-ticket-042
+Source: transformed support example
+Topic: refund exception policy
+
+A caller reports a duplicate charge after an appointment was moved. The approved
+support response should explain the public refund policy, ask the caller to use
+the billing support form, and avoid quoting staff-only exception thresholds.
+
