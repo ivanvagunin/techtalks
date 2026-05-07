@@ -10,8 +10,9 @@ Usage:
     python demos/aino.py --stage 3 --mode defend
 
 Commands during chat:
-    /clear    clear conversation history
-    /quit     exit (or press Ctrl+C)
+    /mode        toggle attack/defend mode (clears history)
+    /clear       clear conversation history
+    /quit        exit (or press Ctrl+C)
 
 Each stage shows a different security boundary:
   Stage 1 — Data Release Gate       (attack: raw PII in context; defend: redacted)
@@ -24,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from textwrap import fill
@@ -212,24 +214,68 @@ def authorize(proposal: dict[str, Any], mode: str) -> tuple[str, str | None]:
 
 # ── terminal UI helpers ───────────────────────────────────────────────────────
 
-WIDTH = 70
+WIDTH = 72
 
-def hr(char: str = "-") -> str:
-    return char * WIDTH
+# ANSI helpers
+_BOLD      = "\033[1m"
+_DIM       = "\033[2m"
+_RESET     = "\033[0m"
+_CYAN      = "\033[36m"
+_GREEN     = "\033[32m"
+_RED       = "\033[31m"
+_YELLOW    = "\033[33m"
+_MAGENTA   = "\033[35m"
+_BLUE      = "\033[34m"
+_BOLD_CYAN = "\033[1;36m"
+_BOLD_RED  = "\033[1;31m"
+_BOLD_GRN  = "\033[1;32m"
+_BOLD_YLW  = "\033[1;33m"
+_BOLD_MAG  = "\033[1;35m"
+
+# Box-drawing
+_TL = "╭"; _TR = "╮"; _BL = "╰"; _BR = "╯"
+_H = "─"; _V = "│"
+
+_ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+
+def _visible_len(text: str) -> int:
+    """Return the display width of *text* ignoring ANSI escape sequences."""
+    return len(_ANSI_RE.sub("", text))
+
+def _box_line(text: str, width: int = WIDTH) -> str:
+    inner = width - 4
+    pad = max(inner - _visible_len(text), 0)
+    return f"  {_V} {text}{' ' * pad} {_V}"
+
+def _box_top(width: int = WIDTH) -> str:
+    return f"  {_TL}{_H * (width - 2)}{_TR}"
+
+def _box_bot(width: int = WIDTH) -> str:
+    return f"  {_BL}{_H * (width - 2)}{_BR}"
+
+def _thin_rule() -> str:
+    return f"  {_DIM}{_H * (WIDTH - 2)}{_RESET}"
 
 def wrap(text: str, indent: str = "  ") -> str:
     return fill(text, width=WIDTH - len(indent), initial_indent=indent, subsequent_indent=indent)
 
 
 def print_header(stage: int, mode: str, model: str) -> None:
-    print()
-    print(hr("="))
-    attack_tag  = "ATTACK MODE  (vulnerability)" if mode == "attack" else "DEFEND MODE  (control active)"
+    if mode == "attack":
+        mode_icon  = "⚠"
+        mode_label = f"{_BOLD_RED}ATTACK MODE{_RESET}  {_DIM}(vulnerability){_RESET}"
+    else:
+        mode_icon  = "✓"
+        mode_label = f"{_BOLD_GRN}DEFEND MODE{_RESET}  {_DIM}(control active){_RESET}"
+
     stage_label = f"Stage {stage}: {STAGE_TITLES[stage]}"
-    print(f"  Aino  |  {stage_label}")
-    print(f"  {attack_tag}")
-    print(f"  Model: {model}")
-    print(hr("="))
+
+    print()
+    print(f"  {_DIM}{_TL}{_H * (WIDTH - 2)}{_TR}{_RESET}")
+    print(_box_line(f"{_BOLD_CYAN}✦ Aino{_RESET} {_DIM}·{_RESET} {_BOLD}{stage_label}{_RESET}"))
+    print(_box_line(f"{mode_icon} {mode_label}"))
+    print(_box_line(f"{_DIM}model: {model}{_RESET}"))
+    print(f"  {_DIM}{_BL}{_H * (WIDTH - 2)}{_BR}{_RESET}")
     print_stage_note(stage, mode)
     print()
 
@@ -245,36 +291,49 @@ def print_stage_note(stage: int, mode: str) -> None:
     }
     note = notes.get((stage, mode), "")
     if note:
-        print(f"  NOTE: {note}")
+        print(f"  {_DIM}{note}{_RESET}")
 
 
 def print_tool_call(proposal: dict[str, Any], decision: str, reason: str | None) -> None:
-    print()
-    print(hr())
     tool = proposal.get("tool", "?")
     args = {k: v for k, v in proposal.items() if k != "tool"}
-    print(f"  MODEL PROPOSED TOOL CALL: {tool}({args})")
-    if "DENY" in decision:
-        print(f"  ACTION GATE: DENIED  ({reason})")
-        print(f"  tool_call=skipped  |  audit=recorded")
+    denied = "DENY" in decision
+
+    print()
+    print(_thin_rule())
+    print(f"  {_BOLD_MAG}⚡ Tool Call:{_RESET} {_BOLD}{tool}{_RESET}{_DIM}({args}){_RESET}")
+    if denied:
+        print(f"  {_BOLD_RED}✗ ACTION GATE: DENIED{_RESET}  {_DIM}({reason}){_RESET}")
+        print(f"  {_DIM}tool_call=skipped  │  audit=recorded{_RESET}")
     else:
-        print(f"  ACTION GATE: {decision}")
-        print(f"  tool_call=executed  |  audit=recorded")
-    print(hr())
+        print(f"  {_BOLD_GRN}✓ ACTION GATE: {decision}{_RESET}")
+        print(f"  {_DIM}tool_call=executed │  audit=recorded{_RESET}")
+    print(_thin_rule())
     print()
 
 
 def print_aino(text: str) -> None:
     print()
-    print("  Aino:")
+    print(f"  {_BOLD_CYAN}◆ Aino{_RESET}")
+    print()
     for line in text.strip().splitlines():
         print(wrap(line))
     print()
 
+
+def print_mode_switch(mode: str) -> None:
+    if mode == "attack":
+        label = f"{_BOLD_RED}ATTACK{_RESET}"
+    else:
+        label = f"{_BOLD_GRN}DEFEND{_RESET}"
+    print(f"\n  {_DIM}switched to{_RESET} {label} {_DIM}mode · conversation cleared{_RESET}")
+
+
 # ── main REPL ─────────────────────────────────────────────────────────────────
 
 def run_repl(stage: int, mode: str, client, deployment: str) -> None:
-    system_prompt = build_system_prompt(stage, mode)
+    current_mode = mode
+    system_prompt = build_system_prompt(stage, current_mode)
     history: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
 
     use_tools = (stage == 3)
@@ -287,27 +346,36 @@ def run_repl(stage: int, mode: str, client, deployment: str) -> None:
         create_kwargs["tools"] = TOOLS
         create_kwargs["tool_choice"] = "auto"
 
-    print_header(stage, mode, deployment)
-    print("  Type your message and press Enter. Commands: /clear  /quit")
+    print_header(stage, current_mode, deployment)
+    print(f"  {_DIM}Type your message and press Enter.  /mode  /clear  /quit{_RESET}")
     print()
 
     while True:
         try:
-            user_input = input("  You: ").strip()
+            user_input = input(f"  {_BOLD_GRN}❯{_RESET} ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\n\n  [session ended]")
+            print(f"\n\n  {_DIM}[session ended]{_RESET}")
             break
 
         if not user_input:
             continue
 
         if user_input.lower() in ("/quit", "/exit", "/q"):
-            print("\n  [session ended]")
+            print(f"\n  {_DIM}[session ended]{_RESET}")
             break
+
+        if user_input.lower() == "/mode":
+            current_mode = "defend" if current_mode == "attack" else "attack"
+            system_prompt = build_system_prompt(stage, current_mode)
+            history = [{"role": "system", "content": system_prompt}]
+            print_mode_switch(current_mode)
+            print_header(stage, current_mode, deployment)
+            print()
+            continue
 
         if user_input.lower() == "/clear":
             history = [{"role": "system", "content": system_prompt}]
-            print("\n  [conversation cleared]\n")
+            print(f"\n  {_DIM}[conversation cleared]{_RESET}\n")
             continue
 
         history.append({"role": "user", "content": user_input})
@@ -327,7 +395,7 @@ def run_repl(stage: int, mode: str, client, deployment: str) -> None:
             args_dict = json.loads(tc.function.arguments)
             proposal = {"tool": tc.function.name, **args_dict}
             valid = schema_valid(proposal)
-            decision, reason = authorize(proposal, mode) if valid else ("DENY", "invalid_schema")
+            decision, reason = authorize(proposal, current_mode) if valid else ("DENY", "invalid_schema")
             print_tool_call(proposal, decision, reason)
             # Add assistant turn (tool call) to history
             history.append({"role": "assistant", "content": None,
