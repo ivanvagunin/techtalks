@@ -1,0 +1,24 @@
+[
+  {
+    "archive": "c1-gift-etherscan.html",
+    "file": "text/c1-gift-etherscan-Gift_1_ETH.sol.txt",
+    "sha256": "2123be9de82d5004b9e4c5ae34536d3d836086ced34f1205a3dd9806d3731110",
+    "status": "explorer-displayed source; no compilation or RPC validation"
+  },
+  {
+    "archive": "c2-private-bank-etherscan.html",
+    "file": "text/c2-private-bank-etherscan-Private_Bank.sol.txt",
+    "sha256": "b7c1bdcecac18e44b6474efc2e5894fc77db4901850e22910a8396c4ba0766e5",
+    "status": "explorer-displayed source; no compilation or RPC validation"
+  },
+  {
+    "archive": "c2-private-bank-logger.html",
+    "status": "no published source recovered"
+  },
+  {
+    "archive": "c3-cryptoroulette-etherscan.html",
+    "file": "text/c3-cryptoroulette-etherscan-CryptoRoulette.sol.txt",
+    "sha256": "85a2ff34c11408c13d566f7764a68bea82e41d7a9362488d08cad370ab7e1240",
+    "status": "explorer-displayed source; no compilation or RPC validation"
+  }
+]

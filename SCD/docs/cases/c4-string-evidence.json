@@ -1,0 +1,32 @@
+{
+  "source_url": "https://gist.github.com/anonymous-research-group/cbddfacdf36c8c815a55d7175dc90ab7",
+  "gist_id": "cbddfacdf36c8c815a55d7175dc90ab7",
+  "revision": "6479448294d405eb74a0badc81a54f76275b706d",
+  "revision_committed_at": "2020-12-10T13:47:10Z",
+  "api_updated_at": "2022-01-20T20:58:38Z",
+  "artifact_file": "text/c4-a4-A4.sol.txt",
+  "artifact_sha256": "6a09472e0472105893df6152dc439bbd44e36ed4a2d5c05f33f2412b98a19574",
+  "literal": "BСT",
+  "utf8_hex": "42 d0 a1 54",
+  "code_points": [
+    {
+      "character": "B",
+      "code_point": "U+0042",
+      "name": "LATIN CAPITAL LETTER B"
+    },
+    {
+      "character": "С",
+      "code_point": "U+0421",
+      "name": "CYRILLIC CAPITAL LETTER ES"
+    },
+    {
+      "character": "T",
+      "code_point": "U+0054",
+      "name": "LATIN CAPITAL LETTER T"
+    }
+  ],
+  "ascii_control": "BCT",
+  "ascii_control_utf8_hex": "42 43 54",
+  "equal_to_ascii_control": false,
+  "limitation": "Static byte inspection only; not compiled or executed. This literal differs from S2 Figure 5/paper prose."
+}
